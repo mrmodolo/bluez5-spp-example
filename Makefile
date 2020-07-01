@@ -6,12 +6,18 @@ CFLAGS_GIO_UNIX  = $(shell pkg-config --cflags --libs gio-unix-2.0)
 
 CFLAGS = -g -Wall -Werror
 
-all: btspp
+all: ./build/btspp
 
-btspp: btspp.c profile1-iface.h profile1-iface.c
+profile1-iface.h: btspp.xml
+	gdbus-codegen --header --output profile1-iface.h btspp.xml
+
+profile1-iface.c: btspp.xml
+	gdbus-codegen --body --output profile1-iface.c btspp.xml
+
+./build/btspp: btspp.c profile1-iface.h profile1-iface.c
 	gcc $^ -o $@ $(CFLAGS) $(CFLAGS_DBUS) $(CFLAGS_DBUS_GLIB) $(CFLAGS_GIO) $(CFLAGS_GIO_UNIX)
 
 clean:
-	rm -f btspp
+	rm -f ./build/btspp
 
 .PHONY: all clean
